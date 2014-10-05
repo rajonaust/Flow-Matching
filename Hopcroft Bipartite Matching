@@ -1,0 +1,83 @@
+// Hopcroft Bipartite Matching
+// Give a list of N numbers of boy and a list of M number of girls and a list of P numbers of possible matching .
+// Need maximum matching between them
+// Time Complexity (sqrt(V)*E)
+// V -> Number of vertexes E -> Number of Edges
+#include <cstdio>
+#include <cstring>
+#include <vector>
+#include <queue>
+#include <iostream>
+using namespace std;
+#define memo(a,b) memset(a,b,sizeof(a))
+#define pb push_back
+#define INF 100000000
+#define NIL 0
+vector <int> graph[100000+10];
+int N , M , P , match[100000+10] , dist[100000+10] ;
+bool BFS()
+{
+    queue <int> Q ;
+    for(int i=1;i<=N;i++)
+    {
+        if(match[i]==NIL)
+        {
+            dist[i] = 0 ;
+            Q.push(i);
+        }
+        else dist[i] = INF ;
+    }
+    dist[NIL] = INF ;
+    while(Q.size()!=0)
+    {
+        int u = Q.front();
+        Q.pop();
+        for(int i=0;i<graph[u].size();i++)
+        {
+            int v = graph[u][i];
+            if(dist[match[v]]==INF)
+            {
+                dist[match[v]] = dist[u]+1;
+                Q.push(match[v]);
+            }
+        }
+    }
+    return dist[NIL]!=INF;
+}
+bool DFS( int u )
+{
+    if(u==NIL) return true ;
+    for(int i=0;i<graph[u].size();i++)
+    {
+        int v = graph[u][i] ;
+        if((dist[match[v]]==dist[u]+1)&&DFS(match[v]))
+        {
+            match[v] = u ;
+            match[u] = v ;
+            return true;
+        }
+    }
+    dist[u]=INF;
+    return false;
+}
+int main()
+{
+    scanf("%d%d%d",&N,&M,&P);
+    while(P--)
+    {
+        int u , v ;
+        scanf("%d%d",&u,&v);
+        graph[u].pb(v+N);
+        graph[v+N].pb(u);
+    }
+    int ans = 0 ;
+    while(BFS())
+    {
+        for(int i=1;i<=N;i++)
+        {
+            if(match[i]==NIL&&DFS(i)) ans++;
+        }
+    }
+    printf("%d\n",ans);
+    return 0;
+}
